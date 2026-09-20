@@ -1,0 +1,28 @@
+{
+  "name": "tribaled-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-Enabled Scholarship and Fellowship Management System - MoTA SIH 2026",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start",
+    "lint": "npm --prefix frontend run lint",
+    "install:all": "npm --prefix frontend install",
+    "backend:dev": "python -m uvicorn app.main:app --app-dir backend --reload --port 8000",
+    "backend:test": "python -m pytest backend/tests"
+  },
+  "workspaces": [
+    "frontend"
+  ],
+  "keywords": [
+    "sih2026",
+    "govtech",
+    "mota",
+    "scholarship-management",
+    "ocr",
+    "document-ai"
+  ],
+  "author": "TribalEd AI Team",
+  "license": "MIT"
+}

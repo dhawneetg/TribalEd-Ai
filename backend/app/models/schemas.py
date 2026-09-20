@@ -1,0 +1,63 @@
+from pydantic import BaseModel, Field
+from typing import Optional, List, Dict, Any
+from datetime import datetime
+
+
+class DigiLockerAuthRequest(BaseModel):
+    aadhaar_number: str = Field(..., min_length=12, max_length=12, description="12-digit Aadhaar number")
+    consent: bool = Field(True, description="Consent for KYC verification")
+
+
+class DigiLockerAuthResponse(BaseModel):
+    success: bool
+    digilocker_id: str
+    name: str
+    gender: str
+    dob: str
+    caste: str
+    aadhaar_masked: str
+    caste_certificate_verified: bool
+    trust_level: float = 1.0
+    token: str
+
+
+class RuleEvaluationRequest(BaseModel):
+    scheme_id: str  # NFST or NOS
+    applicant_name: str
+    caste: str
+    annual_family_income: float
+    age: int
+    gender: str = "male"
+    has_other_fellowship: bool = False
+    degree_marks_percentage: Optional[float] = None
+    course_type: Optional[str] = None  # e.g., "Full-Time Ph.D.", "Masters"
+    qs_world_ranking: Optional[int] = None
+
+
+class RuleCheckResult(BaseModel):
+    rule_code: str
+    rule_name: str
+    passed: bool
+    message: str
+    action_on_failure: str
+
+
+class RuleEvaluationResponse(BaseModel):
+    scheme_id: str
+    eligible: bool
+    merit_score: float
+    rule_results: List[RuleCheckResult]
+    recommendation: str
+
+
+class ApplicationCreate(BaseModel):
+    scheme_id: str
+    user_id: str
+    details: Dict[str, Any]
+
+
+class DeficiencyCreate(BaseModel):
+    application_id: str
+    doc_id: Optional[str] = None
+    issue_description: str
+    deadline_days: int = 7
