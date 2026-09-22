@@ -1,5 +1,5 @@
 {
-  "name": "tribaled-ai",
+  "name": "sarthi",
   "version": "1.0.0",
   "private": true,
   "description": "AI-Enabled Scholarship and Fellowship Management System - MoTA SIH 2026",
@@ -23,6 +23,6 @@
     "ocr",
     "document-ai"
   ],
-  "author": "TribalEd AI Team",
+  "author": "Sarthi Team",
   "license": "MIT"
 }

@@ -30,7 +30,7 @@ app.include_router(applications_router, prefix=settings.API_V1_STR)
 def root():
     return {
         "status": "healthy",
-        "service": "TribalEd AI Backend API",
+        "service": "Sarthi Backend API",
         "version": settings.VERSION,
         "docs_url": "/docs",
     }

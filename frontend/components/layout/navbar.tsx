@@ -31,7 +31,7 @@ export const Navbar: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <span className="font-semibold text-lg text-[#17171c] tracking-tight leading-none">
-                TribalEd <span className="text-[#1863dc]">AI</span>
+                Sarthi
               </span>
               <span className="text-[10px] text-[#75758a] tracking-wider uppercase">
                 Govt. of India • MoTA

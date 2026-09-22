@@ -235,7 +235,7 @@ export default function Home() {
       <footer className="bg-[#17171c] text-[#93939f] py-12 px-4 sm:px-6 lg:px-8 border-t border-[#27272a]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-white font-semibold text-sm">TribalEd AI</span>
+            <span className="text-white font-semibold text-sm">Sarthi</span>
             <span>• Ministry of Tribal Affairs, Government of India</span>
           </div>
           <div className="flex items-center gap-6 text-xs">
