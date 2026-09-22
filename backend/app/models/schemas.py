@@ -57,7 +57,7 @@ class ApplicationCreate(BaseModel):
 
 
 class DeficiencyCreate(BaseModel):
-    application_id: str
+    application_id: Optional[str] = None
     doc_id: Optional[str] = None
     issue_description: str
     deadline_days: int = 7
