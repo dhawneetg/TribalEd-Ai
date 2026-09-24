@@ -43,7 +43,7 @@ export const Navbar: React.FC = () => {
                 className="text-white hover:text-[#a3e635] transition-colors flex items-center gap-1.5 cursor-pointer font-medium whitespace-nowrap"
               >
                 <Server className="w-3.5 h-3.5 text-[#a3e635]" />
-                System Design &amp; Security
+                System Design &amp; Flowcharts
               </button>
               <button
                 type="button"
@@ -204,7 +204,7 @@ export const Navbar: React.FC = () => {
                 className="text-[#1863dc] font-medium flex items-center gap-1"
               >
                 <Server className="w-3.5 h-3.5" />
-                System Design
+                System Design &amp; Flowcharts
               </button>
               <button
                 onClick={() => {
