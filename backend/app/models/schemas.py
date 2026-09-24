@@ -61,3 +61,27 @@ class DeficiencyCreate(BaseModel):
     doc_id: Optional[str] = None
     issue_description: str
     deadline_days: int = 7
+
+
+class StudentProfile(BaseModel):
+    name: str = "Ramesh Chandra Munda"
+    course: str = "B.Tech"
+    year: str = "3rd Year"
+    branch: str = "Computer Science & Engineering"
+    state: str = "Jharkhand"
+    district: Optional[str] = "Khunti"
+    category: str = "Scheduled Tribe (ST)"
+    tribe: Optional[str] = "Munda"
+    income_inr: float = 240000
+    age: int = 20
+    gender: str = "Male"
+    marks_percentage: float = 72.5
+    interests: List[str] = ["Scholarships", "Internships", "Govt Exams", "Certifications"]
+    documents_present: List[str] = ["Aadhaar", "Caste Certificate"]
+
+
+class OpportunityAlertRequest(BaseModel):
+    opportunity_id: str
+    opportunity_title: str
+    phone: str = "+91 9876543210"
+    channel: str = "SMS & WhatsApp"

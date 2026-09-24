@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.api.v1.auth import router as auth_router
 from app.api.v1.schemes import router as schemes_router
 from app.api.v1.applications import router as applications_router
+from app.api.v1.opportunities import router as opportunities_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -24,6 +25,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(schemes_router, prefix=settings.API_V1_STR)
 app.include_router(applications_router, prefix=settings.API_V1_STR)
+app.include_router(opportunities_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/")

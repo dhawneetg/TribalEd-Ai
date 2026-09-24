@@ -14,6 +14,7 @@ import {
   Layers,
   Menu,
   X,
+  Sparkles,
 } from "lucide-react";
 
 export const Navbar: React.FC = () => {
@@ -64,6 +65,16 @@ export const Navbar: React.FC = () => {
             </Link>
 
             <nav className="hidden lg:flex items-center gap-5 text-sm text-[#212121]">
+              <Link
+                href="/opportunities"
+                className="hover:text-[#1863dc] transition-colors flex items-center gap-1.5 font-medium text-[#17171c]"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#ff7759]" />
+                Opportunities
+                <span className="text-[10px] bg-[#ff7759]/15 text-[#ff7759] font-mono px-1.5 py-0.5 rounded-full font-semibold">
+                  Near-Miss AI
+                </span>
+              </Link>
               <Link href="/#schemes" className="hover:text-[#1863dc] transition-colors">
                 Schemes
               </Link>
@@ -100,10 +111,10 @@ export const Navbar: React.FC = () => {
             </Badge>
 
             <Link
-              href="/apply"
+              href="/opportunities"
               className="btn-primary text-xs sm:text-sm py-2 px-4 flex items-center gap-1.5"
             >
-              Start Application
+              Discover Matches
               <ArrowUpRight className="w-4 h-4" />
             </Link>
 
@@ -121,6 +132,13 @@ export const Navbar: React.FC = () => {
         {/* Mobile dropdown */}
         {mobileMenuOpen && (
           <div className="lg:hidden bg-white border-b border-[#e5e7eb] px-4 py-4 space-y-3 text-sm">
+            <Link
+              href="/opportunities"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-1.5 text-[#ff7759] font-medium"
+            >
+              ✨ Opportunities &amp; Near-Miss AI
+            </Link>
             <Link
               href="/#schemes"
               onClick={() => setMobileMenuOpen(false)}

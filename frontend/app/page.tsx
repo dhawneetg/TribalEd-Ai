@@ -56,12 +56,16 @@ export default function Home() {
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Link href="/apply" className="btn-primary text-base py-3 px-7">
-                Apply for Scholarship
+              <Link href="/opportunities" className="btn-primary text-base py-3 px-7 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#edfce9]" />
+                Discover Opportunities &amp; Near-Misses
                 <ArrowRight className="w-4 h-4" />
               </Link>
+              <Link href="/apply" className="btn-pill-outline text-sm py-2.5 px-5">
+                Apply for Fellowship
+              </Link>
               <Link href="/officer/scrutiny" className="btn-pill-outline text-sm py-2.5 px-5">
-                Open Officer Scrutiny Console
+                Officer Scrutiny Console
               </Link>
               <Link
                 href="/track"
@@ -92,19 +96,80 @@ export default function Home() {
               </div>
             </div>
             <div>
-              <div className="text-3xl sm:text-4xl font-light text-[#17171c] tracking-tight">
-                7 Days
+              <div className="text-3xl sm:text-4xl font-light text-[#ff7759] tracking-tight">
+                Near-Miss
               </div>
               <div className="text-xs sm:text-sm text-[#75758a] mt-1 font-mono uppercase">
-                Micro-Deficiency Remediation
+                Actionable AI Guidance
               </div>
             </div>
             <div>
               <div className="text-3xl sm:text-4xl font-light text-[#003c33] tracking-tight">
-                2 Schemes
+                4 Streams
               </div>
               <div className="text-xs sm:text-sm text-[#75758a] mt-1 font-mono uppercase">
-                NFST (India) &amp; NOS (Abroad)
+                Scholarships, Internships, Exams, Certs
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* PROACTIVE OPPORTUNITY & NEAR-MISS FEATURE SECTION */}
+        <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="bg-[#eeece7]/40 border border-[#d9d9dd] rounded-[24px] p-6 sm:p-10 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <span className="text-xs font-mono uppercase text-[#ff7759] tracking-wider font-semibold">
+                  CORE VALUE PROPOSITION: ZERO-EFFORT DISCOVERY
+                </span>
+                <h2 className="text-2xl sm:text-4xl font-light text-[#17171c] mt-1">
+                  Proactive Opportunity Feed + &ldquo;Near-Miss&rdquo; Intelligence
+                </h2>
+                <p className="text-xs sm:text-sm text-[#616161] mt-2 max-w-2xl leading-relaxed">
+                  Register once with your course, year, branch, and location. Sarthi proactively scans
+                  all central, state, and premier opportunities — alerting you when you are{" "}
+                  <strong>potentially eligible</strong> (e.g. 1 missing document or cutoff within tribal relaxation)
+                  and scheduling automated deadline reminders.
+                </p>
+              </div>
+
+              <div className="shrink-0">
+                <Link href="/opportunities" className="btn-primary text-xs sm:text-sm py-3 px-6 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  Try Live Matcher &rarr;
+                </Link>
+              </div>
+            </div>
+
+            {/* Comparison Grid Table */}
+            <div className="bg-white rounded-[18px] border border-[#d9d9dd] overflow-hidden">
+              <div className="grid grid-cols-2 divide-x divide-[#e5e7eb] border-b border-[#e5e7eb] bg-[#eeece7]/60 text-xs font-mono font-semibold uppercase text-[#75758a]">
+                <div className="p-3">Existing Portal Approach (Status Quo)</div>
+                <div className="p-3 text-[#1863dc]">Sarthi AI Solution (Proactive System)</div>
+              </div>
+              <div className="divide-y divide-[#e5e7eb] text-xs">
+                <div className="grid grid-cols-2 divide-x divide-[#e5e7eb] p-3">
+                  <div className="text-gray-500">Student searches manually across fragmented sites</div>
+                  <div className="font-medium text-[#17171c]">System proactively matches with unified candidate profile</div>
+                </div>
+                <div className="grid grid-cols-2 divide-x divide-[#e5e7eb] p-3">
+                  <div className="text-gray-500">Multiple login credentials and separate profiles</div>
+                  <div className="font-medium text-[#17171c]">Register once: Scholarships, Internships, Exams &amp; Certifications</div>
+                </div>
+                <div className="grid grid-cols-2 divide-x divide-[#e5e7eb] p-3">
+                  <div className="text-gray-500">Dense gazette PDFs &amp; confusing criteria</div>
+                  <div className="font-medium text-[#17171c]">Rule-based AI engine calculates exact eligibility in seconds</div>
+                </div>
+                <div className="grid grid-cols-2 divide-x divide-[#e5e7eb] p-3">
+                  <div className="text-gray-500">Binary &ldquo;Eligible / Not Eligible&rdquo; cold rejection</div>
+                  <div className="font-medium text-[#ff7759] font-semibold">
+                    &ldquo;Near-Miss&rdquo; alerts (e.g., &ldquo;Potentially eligible — 1 doc missing&rdquo;)
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 divide-x divide-[#e5e7eb] p-3">
+                  <div className="text-gray-500">Student forgets deadline and loses benefit</div>
+                  <div className="font-medium text-[#16a34a]">Automated SMS &amp; WhatsApp reminders before 48-hour cutoff</div>
+                </div>
               </div>
             </div>
           </div>
