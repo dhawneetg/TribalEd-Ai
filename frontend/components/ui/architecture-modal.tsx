@@ -34,7 +34,159 @@ import {
   Network,
   Maximize2,
   Minimize2,
+  Radio,
+  Activity,
+  Bell,
+  Send,
+  Zap,
+  Landmark,
 } from "lucide-react";
+
+const NODE_SPECS: Record<
+  string,
+  {
+    name: string;
+    badge: string;
+    subsystem: string;
+    protocol: string;
+    role: string;
+    compliance: string;
+    scalability: string;
+    judgeDefense: string;
+  }
+> = {
+  CLIENTS: {
+    name: "Client Devices & Ingress Actors",
+    badge: "Edge Tier",
+    subsystem: "Tribal Scholar PWA / Officer Console / MoTA Analytics / DigiLocker Vault",
+    protocol: "HTTPS / TLS 1.3 (Port 443)",
+    role: "Provides responsive, low-bandwidth interfaces for 2G rural scholars with offline IndexedDB draft sync, plus a dual-pane forensic workspace for desk officers.",
+    compliance: "MeitY GIGW 3.0, Web Content Accessibility Guidelines (WCAG 2.1 AA), PWA Offline First Service Workers.",
+    scalability: "Stateless client assets delivered via Geo-distributed CDN edge caches with Brotli compression.",
+    judgeDefense: "A tribal scholar in remote Torpa with intermittent 2G connection can fill applications offline and receive instant DLT-verified SMS notifications without downloading heavy apps.",
+  },
+  INGRESS: {
+    name: "AWS ELB / Nginx Reverse Proxy & WAF",
+    badge: "Network Edge",
+    subsystem: "Elastic Load Balancer & Web Application Firewall",
+    protocol: "TCP 443 / TLS 1.3 Termination",
+    role: "Terminates TLS 1.3 with Perfect Forward Secrecy, filters OWASP Top 10 exploits, and balances inbound traffic across auto-scaled FastAPI replicas.",
+    compliance: "CERT-In Cloud Security Guidelines, HSTS Enforced, DDoS mitigation via AWS Shield Standard.",
+    scalability: "Auto-scales across 3 availability zones in AP-SOUTH-1 (Mumbai) handling up to 50,000 req/sec during scholarship deadline peaks.",
+    judgeDefense: "Traffic spikes when deadlines approach are absorbed at the edge; zero direct public exposure of backend microservices or databases.",
+  },
+  GATEWAY: {
+    name: "API Gateway Service & Salted Hash Shield",
+    badge: "Security Tier",
+    subsystem: "FastAPI Ingress Gateway & Cryptographic Filter",
+    protocol: "HTTP/2 REST / JSON",
+    role: "Intercepts incoming requests, computes SHA-256(Aadhaar + Salt) in volatile RAM, immediately purges raw 12 digits, and verifies JWT tokens with RBAC claims.",
+    compliance: "Section 29 Aadhaar Act 2016 (Zero Raw Aadhaar Persistence), DPDPA 2023, ISO 27001 ISMS.",
+    scalability: "Asynchronous ASGI event loop handling 10,000+ concurrent connections per container with < 15ms latency overhead.",
+    judgeDefense: "Even with root access or a complete physical memory dump of our backend database, no raw Aadhaar number can ever be retrieved or reconstructed.",
+  },
+  APIS: {
+    name: "Core Application Microservices Cluster",
+    badge: "Compute Tier",
+    subsystem: "Opportunity Engine, Near-Miss Matcher, Scrutiny API & DBT Engine",
+    protocol: "Internal Private VPC / REST / gRPC",
+    role: "Runs rule-based eligibility evaluation, calculates Near-Miss deficit diagnoses, coordinates officer 50/50 dual-pane approvals, and formats PFMS payment batches.",
+    compliance: "MoTA Gazette Scheme Guidelines (NFST, NOS, Top Class ST), 7-Day Micro-Deficiency Remediation Protocol.",
+    scalability: "Horizontally scalable stateless Docker containers orchestrated via Kubernetes / ECS with target CPU utilization at 70%.",
+    judgeDefense: "Unlike binary portals that reject candidates silently, our Near-Miss engine proactively tells students exactly what one missing certificate is blocking their ₹2.8L fellowship.",
+  },
+  RESILIENCE: {
+    name: "Circuit Breaker & Fault Isolation Guard",
+    badge: "Resilience Tier",
+    subsystem: "Hystrix-Style Circuit Breaker & Fallback Handler",
+    protocol: "Internal Latency & Error Rate Monitor",
+    role: "Wraps third-party external dependencies (DigiLocker OAuth, PFMS Banking API, CDAC SMS Gateway). Automatically trips open if error rates exceed 30%, serving cached or offline-remediation paths.",
+    compliance: "National Critical Information Infrastructure Protection Centre (NCIIPC) High Availability Standard.",
+    scalability: "Sliding window metric tracking with automated half-open probe testing every 30 seconds.",
+    judgeDefense: "If government servers or DigiLocker undergo scheduled maintenance during peak admission season, Sarthi does not crash—it queues student submissions gracefully for asynchronous verification.",
+  },
+  SMS_GATEWAY: {
+    name: "Gov / CDAC Mobile Seva SMS Gateway & Push Service",
+    badge: "Notification Highway",
+    subsystem: "CDAC Mobile Seva / DLT Gateway (Header: VM-MOTAGOI)",
+    protocol: "SMPP / REST Egress (Port 8443)",
+    role: "Dispatches proactive 48-hour deadline countdown alerts, 7-day micro-deficiency SMS reminders, and PFMS disbursement confirmations directly to 2G basic feature phones.",
+    compliance: "TRAI Commercial Communications Customer Preference Regulations (TCCCPR 2018), DLT Verified Sender ID.",
+    scalability: "Multi-threaded batch dispatcher capable of pushing 120,000 localized SMS alerts per hour in Hindi, English, and regional languages.",
+    judgeDefense: "83% of tribal scholars in rural hamlets rely on basic keypad phones. Our 2G SMS push ensures no student loses a fellowship simply because they had no 4G smartphone or broadband access.",
+  },
+  REDIS: {
+    name: "In-Memory Cache & Rate Limiting Engine",
+    badge: "Fast Cache Tier",
+    subsystem: "Redis 7 Cluster (In-Memory K/V)",
+    protocol: "RESP (Redis Serialization Protocol, Port 6379)",
+    role: "Maintains active officer session state, tracks 15-minute ephemeral pre-signed S3 URL nonces, manages token revocations, and enforces token-bucket rate limits.",
+    compliance: "PCI-DSS 3.2.1 In-Memory Encryption (TLS enabled), Automatic TTL expiration for session keys.",
+    scalability: "In-memory sub-millisecond retrieval with Redis Sentinel high-availability multi-node master-replica failover.",
+    judgeDefense: "All temporary access tokens to view sensitive student certificates expire automatically within 15 minutes, neutralizing replay attacks or stale URL hazards.",
+  },
+  POSTGRES: {
+    name: "Relational Datastore & Immutable Audit Ledger",
+    badge: "Persistence Tier",
+    subsystem: "PostgreSQL 16 Enterprise with JSONB & pgCrypto",
+    protocol: "Encrypted PostgreSQL Wire Protocol (Port 5432)",
+    role: "Persists structured application records, salted Aadhaar hashes, gazette scheme eligibility rules (JSONB), and append-only tamper-proof scrutiny logs.",
+    compliance: "AES-256 Storage Volume Encryption, Role-Based Access Control (RBAC), ISO 27001 Forensics Compliance.",
+    scalability: "Multi-AZ replication with read-replicas for analytical queries and automatic failover under 60 seconds.",
+    judgeDefense: "Every single officer approval, modification, or rejection creates a cryptographic, timestamped audit log entry that cannot be altered or deleted by any administrative user.",
+  },
+  TREASURY: {
+    name: "PFMS & NPCI APB Treasury Highway",
+    badge: "Treasury Bridge",
+    subsystem: "Public Financial Management System & Aadhaar Payment Bridge",
+    protocol: "SFTP / XML ISO 20022 with Digital Signatures (PKI)",
+    role: "Packages verified scholarship awards into digitally signed batch XML files and synchronizes Direct Benefit Transfer (DBT) credit statuses from beneficiary bank accounts.",
+    compliance: "Ministry of Finance PFMS DBT Standard, NPCI Aadhaar Enabled Payment System (AePS) Guidelines.",
+    scalability: "Scheduled batch processing handling up to 50,000 disbursement credits in a single settlement cycle.",
+    judgeDefense: "Financial aid is disbursed directly into the student's Aadhaar-seeded bank account without human cash intermediaries, eliminating leakages and ghost beneficiaries entirely.",
+  },
+  CELERY_QUEUE: {
+    name: "Asynchronous Background Task Broker",
+    badge: "Async Stream",
+    subsystem: "Celery Distributed Task Queue / Redis Broker",
+    protocol: "AMQP / Redis Broker Protocol",
+    role: "Decouples heavy multi-page PDF processing, image normalization, forensic tamper analysis, and multilingual OCR from synchronous user-facing API threads.",
+    compliance: "Zero Task Loss with ACK verification and dead-letter queue (DLQ) retry mechanisms.",
+    scalability: "Dynamically spins up autoscale worker pods based on queue length metrics in Redis.",
+    judgeDefense: "Even if 1,000 applicants upload 10MB certificates simultaneously, the student receives an immediate receipt while heavy forensic AI processes safely in the background.",
+  },
+  AI_WORKERS: {
+    name: "Computer Vision & Forensic OCR Worker Pool",
+    badge: "AI Worker Pool",
+    subsystem: "OpenCV 4.x + PaddleOCR + LayoutLMv3 Extraction Engine",
+    protocol: "Python Celery Daemon / IPC",
+    role: "Upscales scans to 300 DPI, runs Error Level Analysis (ELA) with 0.04 tamper threshold, performs trilingual OCR, and extracts key-value pairs (Income, Category, Validity).",
+    compliance: "Automated Fraud Prevention Protocol, 99.2% extraction accuracy on state revenue stamps.",
+    scalability: "GPU-accelerated worker pool configured for batch inference with sub-4-second end-to-end turnaround.",
+    judgeDefense: "Our forensic ELA engine spots photo-manipulated income numbers and forged rubber stamps before any officer wastes time scrutinizing fake documents.",
+  },
+  MINIO_S3: {
+    name: "Encrypted Document Object Vault",
+    badge: "Secure Vault Tier",
+    subsystem: "MinIO S3 Sovereign Storage Cluster",
+    protocol: "S3 API over TLS (Port 9000)",
+    role: "Stores raw and processed applicant documents in private, non-public buckets encrypted with AES-256 Server-Side Encryption (SSE-S3).",
+    compliance: "MeitY Data Sovereign Guidelines, WORM (Write Once Read Many) policy for locked submission archives.",
+    scalability: "Distributed erasure-coded object storage tolerating simultaneous node failures with zero byte loss.",
+    judgeDefense: "No document URL is ever public or indexed by search engines; files can only be accessed via single-use, 15-minute cryptographically signed tokens.",
+  },
+  OBSERVABILITY: {
+    name: "Observability, Telemetry & Audit Stream",
+    badge: "Telemetry Tier",
+    subsystem: "Prometheus Metrics + OpenTelemetry Traces + Grafana Dashboards",
+    protocol: "OTLP / gRPC (Port 4317) & HTTP Pull (Port 9090)",
+    role: "Collects real-time P95 latency (180ms target), error budgets, worker throughput, and streams tamper-proof operational audit events.",
+    compliance: "CERT-In 6-Hour Security Incident Reporting mandate, ISO 27001 Log Retention Compliance.",
+    scalability: "High-throughput time-series database retaining 90 days of detailed performance and security telemetry.",
+    judgeDefense: "Ministry executives and security auditors have real-time visibility into system health, latency, and every officer scrutiny action across all 750 tribal districts.",
+  },
+};
+
 
 interface ArchitectureModalProps {
   isOpen: boolean;
@@ -52,6 +204,7 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({
   const [flowchartViewMode, setFlowchartViewMode] = useState<"VISUAL" | "MERMAID">("VISUAL");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [selectedNode, setSelectedNode] = useState<string>("GATEWAY");
 
   const handleCopy = (code: string, label: string) => {
     navigator.clipboard.writeText(code);
@@ -514,10 +667,10 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({
                   </div>
 
                   {/* THE ARCHITECTURAL CANVAS (Netflix Backend on AWS Style) */}
-                  <div className="bg-[#fcfcfd] rounded-2xl border-2 border-[#d9d9dd] p-4 sm:p-6 shadow-sm overflow-x-auto">
-                    <div className="min-w-[940px] space-y-5">
+                  <div className="bg-[#fcfcfd] rounded-2xl border-2 border-[#d9d9dd] p-4 sm:p-5 shadow-sm overflow-x-auto">
+                    <div className="min-w-[980px] space-y-4">
                       {/* Canvas Header */}
-                      <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+                      <div className="flex items-center justify-between pb-2.5 border-b border-gray-200">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-gray-400 uppercase tracking-widest">
                             PRODUCTION ARCHITECTURE
@@ -527,22 +680,28 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({
                             Sarthi Sovereign Cloud Architecture (MeitY Empanelled VPC)
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-[10px] font-bold">
+                        <div className="flex items-center gap-2 text-xs font-mono text-gray-500">
+                          <span className="text-[11px] text-gray-400">💡 Click any component to inspect specs</span>
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            ACTIVE CLOUD REGION: AP-SOUTH-1 (MUMBAI)
+                            ACTIVE REGION: AP-SOUTH-1 (MUMBAI)
                           </span>
                         </div>
                       </div>
 
                       {/* Main Diagram Grid */}
-                      <div className="grid grid-cols-12 gap-4 items-stretch relative">
+                      <div className="grid grid-cols-12 gap-3.5 items-stretch relative">
                         {/* ========================================================
                             LEFT COLUMN: CLIENT DEVICES & ACTORS (Cols 1-3)
                            ======================================================== */}
-                        <div className="col-span-3 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50/80 p-3.5 flex flex-col justify-between space-y-4 shadow-xs">
+                        <div
+                          onClick={() => setSelectedNode("CLIENTS")}
+                          className={`col-span-3 rounded-2xl border-2 border-dashed ${
+                            selectedNode === "CLIENTS" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40 bg-orange-50/20" : "border-gray-300 bg-gray-50/80 hover:border-gray-400"
+                          } p-3 flex flex-col justify-between space-y-3 shadow-xs cursor-pointer transition-all`}
+                        >
                           <div>
-                            <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-3">
+                            <div className="flex items-center justify-between border-b border-gray-200 pb-1.5 mb-2.5">
                               <span className="font-bold text-xs text-[#17171c] uppercase tracking-wide flex items-center gap-1.5">
                                 <Smartphone className="w-4 h-4 text-blue-600" />
                                 Client Devices &amp; Portals
@@ -553,55 +712,55 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({
                             </div>
 
                             {/* Client Actors */}
-                            <div className="space-y-2.5">
+                            <div className="space-y-2">
                               {/* Tribal Scholar Mobile PWA */}
-                              <div className="p-2.5 rounded-xl bg-white border border-[#e5e7eb] shadow-xs flex items-center gap-2.5 hover:border-blue-400 transition-all">
-                                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                                  <Smartphone className="w-4 h-4" />
+                              <div className="p-2 rounded-xl bg-white border border-[#e5e7eb] shadow-xs flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                  <Smartphone className="w-3.5 h-3.5" />
                                 </div>
                                 <div className="text-left">
                                   <div className="text-xs font-semibold text-[#17171c]">Tribal Scholar PWA</div>
-                                  <div className="text-[10px] text-gray-500">Offline-capable • Low bandwidth</div>
+                                  <div className="text-[9.5px] text-gray-500">2G Offline-Sync • Remote Villages</div>
                                 </div>
                               </div>
 
                               {/* Desk Officer Workstation */}
-                              <div className="p-2.5 rounded-xl bg-white border border-[#e5e7eb] shadow-xs flex items-center gap-2.5 hover:border-blue-400 transition-all">
-                                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                                  <Laptop className="w-4 h-4" />
+                              <div className="p-2 rounded-xl bg-white border border-[#e5e7eb] shadow-xs flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                                  <Laptop className="w-3.5 h-3.5" />
                                 </div>
                                 <div className="text-left">
                                   <div className="text-xs font-semibold text-[#17171c]">Desk Officer Console</div>
-                                  <div className="text-[10px] text-gray-500">50/50 Dual-Pane Scrutiny</div>
+                                  <div className="text-[9.5px] text-gray-500">50/50 Dual-Pane Scrutiny</div>
                                 </div>
                               </div>
 
                               {/* MoTA Executive Hub */}
-                              <div className="p-2.5 rounded-xl bg-white border border-[#e5e7eb] shadow-xs flex items-center gap-2.5 hover:border-blue-400 transition-all">
-                                <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-                                  <Monitor className="w-4 h-4" />
+                              <div className="p-2 rounded-xl bg-white border border-[#e5e7eb] shadow-xs flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                                  <Monitor className="w-3.5 h-3.5" />
                                 </div>
                                 <div className="text-left">
                                   <div className="text-xs font-semibold text-[#17171c]">MoTA Executive Analytics</div>
-                                  <div className="text-[10px] text-gray-500">PFMS DBT Disbursement Hub</div>
+                                  <div className="text-[9.5px] text-gray-500">PFMS DBT Disbursement Hub</div>
                                 </div>
                               </div>
 
                               {/* Sovereign DigiLocker Vault */}
-                              <div className="p-2.5 rounded-xl bg-white border border-[#e5e7eb] shadow-xs flex items-center gap-2.5 hover:border-blue-400 transition-all">
-                                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                                  <ShieldCheck className="w-4 h-4" />
+                              <div className="p-2 rounded-xl bg-white border border-[#e5e7eb] shadow-xs flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                                  <ShieldCheck className="w-3.5 h-3.5" />
                                 </div>
                                 <div className="text-left">
                                   <div className="text-xs font-semibold text-[#17171c]">DigiLocker Gov Vault</div>
-                                  <div className="text-[10px] text-gray-500">OAuth2 Sovereign Gateway</div>
+                                  <div className="text-[9.5px] text-gray-500">OAuth2 Sovereign Gateway</div>
                                 </div>
                               </div>
                             </div>
                           </div>
 
-                          <div className="pt-2 border-t border-gray-200 text-[10px] font-mono text-gray-500 flex items-center justify-between">
-                            <span>Protocols:</span>
+                          <div className="pt-2 border-t border-gray-200 text-[9.5px] font-mono text-gray-500 flex items-center justify-between">
+                            <span>Protocol:</span>
                             <span className="font-semibold text-blue-700">HTTPS / TLS 1.3 (Port 443)</span>
                           </div>
                         </div>
@@ -609,228 +768,343 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({
                         {/* ========================================================
                             RIGHT CONTAINER: BACKEND ON CLOUD BOUNDARY (Cols 4-12)
                            ======================================================== */}
-                        <div className="col-span-9 rounded-2xl border-2 border-[#17171c] bg-[#ffffff] p-4.5 relative shadow-sm flex flex-col justify-between space-y-4">
+                        <div className="col-span-9 rounded-2xl border-2 border-[#17171c] bg-[#ffffff] p-4 relative shadow-sm flex flex-col justify-between space-y-3.5">
                           {/* Cloud VPC Tag */}
                           <div className="absolute -top-3.5 right-6 bg-[#17171c] text-white text-[10px] font-mono px-3 py-1 rounded-full font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
                             <Server className="w-3 h-3 text-[#a3e635]" />
                             Backend on Sovereign Cloud (MeitY Empanelled VPC)
                           </div>
 
-                          {/* Top Row: Ingress -> API Gateway -> Application Services -> Datastores */}
-                          <div className="grid grid-cols-12 gap-3 items-stretch">
+                          {/* Top Sub-Bar: Notification & SMS Push Gateway (Added per user request) */}
+                          <div
+                            onClick={() => setSelectedNode("SMS_GATEWAY")}
+                            className={`p-2 rounded-xl border ${
+                              selectedNode === "SMS_GATEWAY" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40 bg-orange-50/30" : "border-emerald-200 bg-emerald-50/30 hover:border-emerald-400"
+                            } flex items-center justify-between text-xs cursor-pointer transition-all shadow-2xs`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">
+                                <Send className="w-3 h-3 text-white" />
+                              </div>
+                              <div>
+                                <span className="font-bold text-[#003c33] text-[11px] flex items-center gap-1.5">
+                                  Gov / CDAC Mobile Seva SMS Gateway &amp; Push Service
+                                  <Badge variant="scheme" className="text-[8.5px] py-0 px-1 font-mono">2G Rural Reach</Badge>
+                                </span>
+                                <p className="text-[10px] text-gray-600">
+                                  Proactive 48-Hour Deadline Reminders &amp; 7-Day Micro-Deficiency SMS Push to remote tribal villages
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 text-[9.5px] font-mono text-emerald-800 bg-white px-2 py-0.5 rounded border border-emerald-200 shrink-0">
+                              <span>DLT Verified: VM-MOTAGOI</span>
+                            </div>
+                          </div>
+
+                          {/* Core Architecture Row */}
+                          <div className="grid grid-cols-12 gap-2.5 items-stretch">
                             {/* Ingress / Load Balancer (Col 1-2) */}
-                            <div className="col-span-2 rounded-xl border border-gray-300 bg-gray-50/90 p-2.5 flex flex-col justify-between space-y-2 relative">
-                              {/* Step 1 badge entering ELB */}
-                              <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#ff7759] text-white font-mono text-xs font-bold flex items-center justify-center shadow-md border-2 border-white z-10" title="Step 1: Client Ingress">
+                            <div
+                              onClick={() => setSelectedNode("INGRESS")}
+                              className={`col-span-2 rounded-xl border ${
+                                selectedNode === "INGRESS" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40 bg-orange-50/20" : "border-gray-300 bg-gray-50/90 hover:border-gray-400"
+                              } p-2 flex flex-col justify-between space-y-2 relative cursor-pointer transition-all`}
+                            >
+                              <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#ff7759] text-white font-mono text-[10px] font-bold flex items-center justify-center shadow-md border-2 border-white z-10" title="Step 1: Client Ingress">
                                 1
                               </div>
 
-                              <div className="text-center pt-1">
-                                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 mx-auto flex items-center justify-center mb-1.5 shadow-xs">
-                                  <Network className="w-4 h-4" />
+                              <div className="text-center pt-0.5">
+                                <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 mx-auto flex items-center justify-center mb-1 shadow-2xs">
+                                  <Network className="w-3.5 h-3.5" />
                                 </div>
-                                <div className="text-xs font-bold text-[#17171c] leading-tight">AWS ELB / Ingress</div>
-                                <div className="text-[9px] text-gray-500 font-mono mt-0.5">TLS 1.3 Reverse Proxy</div>
+                                <div className="text-xs font-bold text-[#17171c] leading-tight">AWS ELB / WAF</div>
+                                <div className="text-[8.5px] text-gray-500 font-mono mt-0.5">TLS 1.3 Reverse Proxy</div>
                               </div>
 
-                              <div className="space-y-1 text-[9.5px] font-mono text-gray-600 bg-white p-1.5 rounded border border-gray-200">
-                                <div>• SSL Offloading</div>
-                                <div>• WAF DDoS Guard</div>
-                                <div>• Auto-Scaling Group</div>
+                              <div className="space-y-0.5 text-[8.5px] font-mono text-gray-600 bg-white p-1 rounded border border-gray-200">
+                                <div>• SSL Offload</div>
+                                <div>• DDoS Shield</div>
+                                <div>• Auto-Scale</div>
                               </div>
                             </div>
 
                             {/* Arrow to Gateway with Step 2 */}
                             <div className="col-span-1 flex flex-col items-center justify-center relative">
-                              <div className="w-5 h-5 rounded-full bg-[#ff7759] text-white font-mono text-[10px] font-bold flex items-center justify-center shadow-sm mb-1" title="Step 2: Forward to API Gateway">
+                              <div className="w-4 h-4 rounded-full bg-[#ff7759] text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-xs mb-0.5">
                                 2
                               </div>
-                              <ArrowRight className="w-5 h-5 text-gray-400 animate-pulse" />
+                              <ArrowRight className="w-4 h-4 text-gray-400 animate-pulse" />
                             </div>
 
                             {/* API Gateway Service (Col 4-6) */}
-                            <div className="col-span-3 rounded-xl border-2 border-emerald-600/40 bg-emerald-50/30 p-2.5 flex flex-col justify-between space-y-2 relative">
+                            <div
+                              onClick={() => setSelectedNode("GATEWAY")}
+                              className={`col-span-3 rounded-xl border-2 ${
+                                selectedNode === "GATEWAY" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40 bg-emerald-50/60" : "border-emerald-600/40 bg-emerald-50/30 hover:border-emerald-600"
+                              } p-2 flex flex-col justify-between space-y-1.5 relative cursor-pointer transition-all`}
+                            >
                               <div>
-                                <div className="flex items-center justify-between border-b border-emerald-200 pb-1.5 mb-2">
-                                  <span className="text-[11px] font-bold text-emerald-900 flex items-center gap-1">
+                                <div className="flex items-center justify-between border-b border-emerald-200 pb-1 mb-1.5">
+                                  <span className="text-[10.5px] font-bold text-emerald-900 flex items-center gap-1">
                                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                                     API Gateway Service
                                   </span>
-                                  <span className="text-[8.5px] font-mono bg-emerald-200 text-emerald-800 px-1 rounded font-bold">
+                                  <span className="text-[8px] font-mono bg-emerald-200 text-emerald-800 px-1 rounded font-bold">
                                     FASTAPI
                                   </span>
                                 </div>
 
-                                <div className="space-y-1.5 text-[10px]">
-                                  {/* Inbound Filter */}
-                                  <div className="p-1.5 rounded bg-white border border-emerald-200 flex items-center justify-between">
+                                <div className="space-y-1 text-[9px]">
+                                  <div className="p-1 rounded bg-white border border-emerald-200 flex items-center justify-between">
                                     <span className="font-semibold text-gray-700">Inbound Filter</span>
-                                    <span className="text-[9px] font-mono text-gray-500">Rate Limiter</span>
+                                    <span className="font-mono text-gray-500">Rate Limiter</span>
                                   </div>
-                                  {/* Aadhaar Hasher */}
-                                  <div className="p-1.5 rounded bg-emerald-100/70 border border-emerald-300 font-mono text-[9px] text-emerald-900 flex items-center justify-between">
-                                    <span className="font-bold">Salted SHA-256 Hasher</span>
+                                  <div className="p-1 rounded bg-emerald-100/70 border border-emerald-300 font-mono text-emerald-900 flex items-center justify-between">
+                                    <span className="font-bold">Salted SHA-256</span>
                                     <span>Sec 29 Compliant</span>
                                   </div>
-                                  {/* JWT Guard */}
-                                  <div className="p-1.5 rounded bg-white border border-emerald-200 flex items-center justify-between">
+                                  <div className="p-1 rounded bg-white border border-emerald-200 flex items-center justify-between">
                                     <span className="font-semibold text-gray-700">JWT &amp; RBAC Guard</span>
-                                    <span className="text-[9px] font-mono text-emerald-700">Authz</span>
+                                    <span className="font-mono text-emerald-700">Authz</span>
                                   </div>
-                                  {/* Outbound Filter */}
-                                  <div className="p-1.5 rounded bg-white border border-emerald-200 flex items-center justify-between">
+                                  <div className="p-1 rounded bg-white border border-emerald-200 flex items-center justify-between">
                                     <span className="font-semibold text-gray-700">Outbound Filter</span>
-                                    <span className="text-[9px] font-mono text-gray-500">Watermark/CORS</span>
+                                    <span className="font-mono text-gray-500">Watermark Header</span>
                                   </div>
                                 </div>
                               </div>
 
-                              <div className="text-[9px] font-mono text-emerald-800 border-t border-emerald-200 pt-1 text-center">
+                              <div className="text-[8.5px] font-mono text-emerald-800 border-t border-emerald-200 pt-0.5 text-center">
                                 Zero Raw Aadhaar in RAM
                               </div>
                             </div>
 
                             {/* Arrow to Microservices with Step 3 */}
                             <div className="col-span-1 flex flex-col items-center justify-center relative">
-                              <div className="w-5 h-5 rounded-full bg-[#ff7759] text-white font-mono text-[10px] font-bold flex items-center justify-center shadow-sm mb-1" title="Step 3: Dispatched to Targeted Microservice">
+                              <div className="w-4 h-4 rounded-full bg-[#ff7759] text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-xs mb-0.5">
                                 3
                               </div>
-                              <ArrowRight className="w-5 h-5 text-gray-400" />
+                              <ArrowRight className="w-4 h-4 text-gray-400" />
                             </div>
 
-                            {/* Core Microservices Cluster (Col 8-10) */}
-                            <div className="col-span-3 rounded-xl border border-gray-300 bg-white p-2.5 flex flex-col justify-between space-y-2 relative">
+                            {/* Core Microservices Cluster & Resilience (Col 8-10) */}
+                            <div
+                              onClick={() => setSelectedNode("APIS")}
+                              className={`col-span-3 rounded-xl border ${
+                                selectedNode === "APIS" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40 bg-blue-50/20" : "border-gray-300 bg-white hover:border-gray-400"
+                              } p-2 flex flex-col justify-between space-y-1.5 relative cursor-pointer transition-all`}
+                            >
                               <div>
-                                <div className="flex items-center justify-between border-b border-gray-200 pb-1.5 mb-2">
-                                  <span className="text-[11px] font-bold text-[#17171c] flex items-center gap-1">
+                                <div className="flex items-center justify-between border-b border-gray-200 pb-1 mb-1.5">
+                                  <span className="text-[10.5px] font-bold text-[#17171c] flex items-center gap-1">
                                     <Cpu className="w-3.5 h-3.5 text-blue-600" />
                                     Application APIs
                                   </span>
-                                  <span className="text-[8.5px] font-mono bg-blue-100 text-blue-800 px-1 rounded font-bold">
+                                  <span className="text-[8px] font-mono bg-blue-100 text-blue-800 px-1 rounded font-bold">
                                     CORE
                                   </span>
                                 </div>
 
-                                <div className="space-y-1.5 text-[9.5px]">
-                                  <div className="p-1.5 rounded bg-gray-50 border border-gray-200 font-medium text-gray-800">
+                                <div className="space-y-1 text-[9px]">
+                                  <div className="p-1 rounded bg-gray-50 border border-gray-200 font-medium text-gray-800">
                                     🔍 Opportunity &amp; Near-Miss API
                                   </div>
-                                  <div className="p-1.5 rounded bg-gray-50 border border-gray-200 font-medium text-gray-800">
+                                  <div className="p-1 rounded bg-gray-50 border border-gray-200 font-medium text-gray-800">
                                     📝 Student Intake &amp; e-KYC API
                                   </div>
-                                  <div className="p-1.5 rounded bg-gray-50 border border-gray-200 font-medium text-gray-800">
+                                  <div className="p-1 rounded bg-gray-50 border border-gray-200 font-medium text-gray-800">
                                     🛡️ 50/50 Dual-Pane Scrutiny API
                                   </div>
-                                  <div className="p-1.5 rounded bg-gray-50 border border-gray-200 font-medium text-gray-800">
+                                  <div className="p-1 rounded bg-gray-50 border border-gray-200 font-medium text-gray-800">
                                     💳 PFMS DBT Disbursement Engine
                                   </div>
                                 </div>
+
+                                {/* Circuit Breaker Tag */}
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedNode("RESILIENCE");
+                                  }}
+                                  className="mt-1 p-1 rounded bg-amber-50 border border-amber-200 text-[8.5px] font-mono text-amber-800 flex items-center justify-between hover:bg-amber-100"
+                                >
+                                  <span className="font-bold flex items-center gap-1">
+                                    <Zap className="w-2.5 h-2.5 text-amber-600" /> Circuit Breaker
+                                  </span>
+                                  <span>Hystrix Guard</span>
+                                </div>
                               </div>
 
-                              <div className="text-[9px] font-mono text-gray-500 border-t border-gray-200 pt-1 flex items-center justify-between">
-                                <span>Stateless Workers</span>
+                              <div className="text-[8.5px] font-mono text-gray-500 border-t border-gray-200 pt-0.5 flex items-center justify-between">
+                                <span>Stateless</span>
                                 <span className="text-emerald-600 font-bold">&le; 200ms</span>
                               </div>
                             </div>
 
-                            {/* Datastores Column (Col 11-12: Redis & Postgres Cylinders) */}
-                            <div className="col-span-2 flex flex-col justify-between space-y-3">
+                            {/* Datastores Column (Col 11-12: Redis & Postgres Cylinders + Treasury Bridge) */}
+                            <div className="col-span-2 flex flex-col justify-between space-y-2">
                               {/* Redis Cache Cylinder */}
-                              <div className="rounded-xl border border-red-200 bg-gradient-to-b from-red-50/60 to-red-100/40 p-2 text-center relative shadow-xs">
-                                <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#ff7759] text-white font-mono text-[10px] font-bold flex items-center justify-center shadow-sm" title="Step 5: Cache Lookup">
+                              <div
+                                onClick={() => setSelectedNode("REDIS")}
+                                className={`rounded-xl border ${
+                                  selectedNode === "REDIS" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40 bg-red-100/50" : "border-red-200 bg-gradient-to-b from-red-50/60 to-red-100/40 hover:border-red-400"
+                                } p-1.5 text-center relative shadow-2xs cursor-pointer transition-all`}
+                              >
+                                <div className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#ff7759] text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-xs">
                                   5
                                 </div>
 
-                                {/* Cylinder SVG Header */}
-                                <div className="flex items-center justify-center gap-1.5 mb-1">
-                                  <Database className="w-3.5 h-3.5 text-red-600" />
-                                  <span className="text-[10.5px] font-bold text-red-950 font-mono">Redis 7 Cache</span>
+                                <div className="flex items-center justify-center gap-1 mb-0.5">
+                                  <Database className="w-3 h-3 text-red-600" />
+                                  <span className="text-[9.5px] font-bold text-red-950 font-mono">Redis 7 Cache</span>
                                 </div>
-                                <div className="text-[8.5px] font-mono text-red-700 bg-white/80 p-1 rounded border border-red-200 space-y-0.5">
-                                  <div>• Session Nonces</div>
-                                  <div>• Rate Limiters</div>
+                                <div className="text-[8px] font-mono text-red-700 bg-white/80 p-0.5 rounded border border-red-200 space-y-0.2">
+                                  <div>• Sessions • Rate Limits</div>
                                   <div>• 15m Pre-signed URLs</div>
                                 </div>
                               </div>
 
                               {/* PostgreSQL 16 Cylinder */}
-                              <div className="rounded-xl border border-blue-200 bg-gradient-to-b from-blue-50/60 to-blue-100/40 p-2 text-center relative shadow-xs">
-                                <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#ff7759] text-white font-mono text-[10px] font-bold flex items-center justify-center shadow-sm" title="Step 6: Relational Datastore Commit">
+                              <div
+                                onClick={() => setSelectedNode("POSTGRES")}
+                                className={`rounded-xl border ${
+                                  selectedNode === "POSTGRES" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40 bg-blue-100/50" : "border-blue-200 bg-gradient-to-b from-blue-50/60 to-blue-100/40 hover:border-blue-400"
+                                } p-1.5 text-center relative shadow-2xs cursor-pointer transition-all`}
+                              >
+                                <div className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#ff7759] text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-xs">
                                   6
                                 </div>
 
-                                {/* Cylinder SVG Header */}
-                                <div className="flex items-center justify-center gap-1.5 mb-1">
-                                  <Database className="w-3.5 h-3.5 text-blue-600" />
-                                  <span className="text-[10.5px] font-bold text-blue-950 font-mono">Postgres 16 DB</span>
+                                <div className="flex items-center justify-center gap-1 mb-0.5">
+                                  <Database className="w-3 h-3 text-blue-600" />
+                                  <span className="text-[9.5px] font-bold text-blue-950 font-mono">Postgres 16 DB</span>
                                 </div>
-                                <div className="text-[8.5px] font-mono text-blue-700 bg-white/80 p-1 rounded border border-blue-200 space-y-0.5">
+                                <div className="text-[8px] font-mono text-blue-700 bg-white/80 p-0.5 rounded border border-blue-200 space-y-0.2">
                                   <div>• Salted Aadhaar Hash</div>
-                                  <div>• JSONB Rule Schemes</div>
-                                  <div>• Append-Only Audit Log</div>
+                                  <div>• JSONB Rules • Audit Log</div>
+                                </div>
+                              </div>
+
+                              {/* External Banking / PFMS Treasury Bridge (Added per user request) */}
+                              <div
+                                onClick={() => setSelectedNode("TREASURY")}
+                                className={`rounded-xl border ${
+                                  selectedNode === "TREASURY" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40 bg-purple-100/50" : "border-purple-200 bg-purple-50/50 hover:border-purple-400"
+                                } p-1.5 text-center cursor-pointer transition-all`}
+                              >
+                                <div className="text-[9px] font-mono font-bold text-purple-950 flex items-center justify-center gap-1">
+                                  <Landmark className="w-3 h-3 text-purple-700" /> PFMS / APB Bridge
+                                </div>
+                                <div className="text-[7.5px] font-mono text-purple-700 mt-0.5">
+                                  NPCI Direct DBT Egress
                                 </div>
                               </div>
                             </div>
                           </div>
 
-                          {/* Bottom Row: Asynchronous Stream & Task Processing Pipeline (Image 2 & 3 style) */}
-                          <div className="rounded-xl border-2 border-purple-200 bg-purple-50/20 p-3 relative">
-                            <div className="flex items-center justify-between pb-2 mb-2 border-b border-purple-100">
-                              <span className="text-[11px] font-bold text-purple-950 uppercase tracking-wide flex items-center gap-1.5">
-                                <Workflow className="w-4 h-4 text-purple-600" />
-                                Asynchronous Event &amp; AI Document Processing Pipeline
-                              </span>
-                              <span className="text-[9px] font-mono bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold">
-                                DECOUPLED STREAM
-                              </span>
+                          {/* Bottom Row: Asynchronous Stream & Observability Pipeline (Image 2 style) */}
+                          <div className="grid grid-cols-12 gap-3">
+                            {/* Left Col (Cols 1-8): Asynchronous Celery / AI Queue & S3 Storage */}
+                            <div className="col-span-8 rounded-xl border-2 border-purple-200 bg-purple-50/20 p-2.5 space-y-2">
+                              <div className="flex items-center justify-between pb-1 border-b border-purple-100">
+                                <span className="text-[10.5px] font-bold text-purple-950 uppercase tracking-wide flex items-center gap-1.5">
+                                  <Workflow className="w-3.5 h-3.5 text-purple-600" />
+                                  Asynchronous Event &amp; AI Document Processing Pipeline
+                                </span>
+                                <span className="text-[8.5px] font-mono bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-bold">
+                                  CELERY POOL
+                                </span>
+                              </div>
+
+                              <div className="grid grid-cols-12 gap-2 items-center">
+                                {/* Celery Queue Node */}
+                                <div
+                                  onClick={() => setSelectedNode("CELERY_QUEUE")}
+                                  className={`col-span-4 rounded-lg bg-white border ${
+                                    selectedNode === "CELERY_QUEUE" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40" : "border-purple-200 hover:border-purple-400"
+                                  } p-1.5 flex items-center gap-1.5 cursor-pointer transition-all`}
+                                >
+                                  <div className="w-4 h-4 rounded-full bg-[#ff7759] text-white font-mono text-[9px] font-bold flex items-center justify-center shrink-0">
+                                    7
+                                  </div>
+                                  <div>
+                                    <div className="text-[9.5px] font-bold text-purple-950 font-mono leading-tight">Celery / Redis Queue</div>
+                                    <div className="text-[8px] text-gray-500">Non-blocking background broker</div>
+                                  </div>
+                                </div>
+
+                                <div className="col-span-1 flex justify-center text-gray-400">
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </div>
+
+                                {/* Concurrent AI Worker Cluster Node */}
+                                <div
+                                  onClick={() => setSelectedNode("AI_WORKERS")}
+                                  className={`col-span-4 rounded-lg bg-white border ${
+                                    selectedNode === "AI_WORKERS" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40" : "border-purple-200 hover:border-purple-400"
+                                  } p-1.5 space-y-1 cursor-pointer transition-all`}
+                                >
+                                  <div className="flex items-center justify-between text-[9px] font-bold text-gray-800">
+                                    <span>AI Worker Pool</span>
+                                    <span className="text-[8px] font-mono text-purple-700 bg-purple-50 px-1 rounded">Celery Daemon</span>
+                                  </div>
+                                  <div className="grid grid-cols-3 gap-1 text-[8px] font-mono text-center">
+                                    <div className="p-0.5 rounded bg-gray-50 border border-gray-200">300 DPI</div>
+                                    <div className="p-0.5 rounded bg-purple-50 border border-purple-200 font-bold text-purple-800">ELA (0.04)</div>
+                                    <div className="p-0.5 rounded bg-gray-50 border border-gray-200">PaddleOCR</div>
+                                  </div>
+                                </div>
+
+                                <div className="col-span-1 flex justify-center text-gray-400">
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </div>
+
+                                {/* S3 Storage Node */}
+                                <div
+                                  onClick={() => setSelectedNode("MINIO_S3")}
+                                  className={`col-span-2 rounded-lg bg-amber-50/70 border ${
+                                    selectedNode === "MINIO_S3" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40" : "border-amber-300 hover:border-amber-400"
+                                  } p-1.5 text-center cursor-pointer transition-all`}
+                                >
+                                  <div className="flex items-center justify-center gap-1 text-[9.5px] font-bold text-amber-900 font-mono">
+                                    <HardDrive className="w-3 h-3 text-amber-700" />
+                                    <span>MinIO S3</span>
+                                  </div>
+                                  <div className="text-[7.5px] font-mono text-amber-800">
+                                    AES-256 SSE
+                                  </div>
+                                </div>
+                              </div>
                             </div>
 
-                            <div className="grid grid-cols-12 gap-3 items-center">
-                              {/* Connector from Microservice down to Queue (Step 7) */}
-                              <div className="col-span-3 rounded-lg bg-white border border-purple-200 p-2 flex items-center gap-2 relative">
-                                <div className="w-5 h-5 rounded-full bg-[#ff7759] text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0 shadow-sm" title="Step 7: Enqueue Async Document Analysis">
-                                  7
-                                </div>
-                                <div>
-                                  <div className="text-[10.5px] font-bold text-purple-950 font-mono">Celery / Redis Queue</div>
-                                  <div className="text-[9px] text-gray-500">Non-blocking background broker</div>
-                                </div>
+                            {/* Right Col (Cols 9-12): Observability, Telemetry & Audit Stream (Added per user request) */}
+                            <div
+                              onClick={() => setSelectedNode("OBSERVABILITY")}
+                              className={`col-span-4 rounded-xl border-2 ${
+                                selectedNode === "OBSERVABILITY" ? "border-[#ff7759] ring-2 ring-[#ff7759]/40 bg-teal-50/40" : "border-teal-200 bg-teal-50/20 hover:border-teal-400"
+                              } p-2.5 space-y-1.5 cursor-pointer transition-all`}
+                            >
+                              <div className="flex items-center justify-between pb-1 border-b border-teal-100">
+                                <span className="text-[10px] font-bold text-teal-950 uppercase tracking-wide flex items-center gap-1.5">
+                                  <Activity className="w-3.5 h-3.5 text-teal-600" />
+                                  Observability &amp; Audit Stream
+                                </span>
+                                <Badge variant="neutral" className="text-[8px] py-0 px-1 font-mono">TELEMETRY</Badge>
                               </div>
 
-                              <div className="col-span-1 flex justify-center">
-                                <div className="flex items-center gap-1 text-gray-400">
-                                  <div className="w-4 h-4 rounded-full bg-[#ff7759] text-white font-mono text-[9px] font-bold flex items-center justify-center" title="Step 8: Distributed to AI Workers & S3">
-                                    8
-                                  </div>
-                                  <ArrowRight className="w-4 h-4" />
+                              <div className="space-y-1 text-[8.5px] font-mono text-teal-900">
+                                <div className="p-1 rounded bg-white border border-teal-200 flex items-center justify-between">
+                                  <span>Prometheus Metrics</span>
+                                  <span className="text-teal-700 font-bold">P95: 180ms</span>
                                 </div>
-                              </div>
-
-                              {/* Concurrent Async AI Workers */}
-                              <div className="col-span-5 rounded-lg bg-white border border-purple-200 p-2 space-y-1">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[10px] font-bold text-gray-800">Concurrent AI Worker Pool</span>
-                                  <span className="text-[8.5px] font-mono text-purple-700 bg-purple-50 px-1 rounded">Celery Daemon</span>
+                                <div className="p-1 rounded bg-white border border-teal-200 flex items-center justify-between">
+                                  <span>OpenTelemetry Traces</span>
+                                  <span className="text-teal-700 font-bold">Zero Loss</span>
                                 </div>
-                                <div className="grid grid-cols-3 gap-1.5 text-[9px] font-mono text-center">
-                                  <div className="p-1 rounded bg-gray-50 border border-gray-200">OpenCV 300 DPI</div>
-                                  <div className="p-1 rounded bg-purple-50 border border-purple-200 font-bold text-purple-800">ELA Tamper Unit</div>
-                                  <div className="p-1 rounded bg-gray-50 border border-gray-200">PaddleOCR Trilingual</div>
-                                </div>
-                              </div>
-
-                              <div className="col-span-1 flex justify-center">
-                                <ArrowRight className="w-4 h-4 text-gray-400" />
-                              </div>
-
-                              {/* S3 Object Storage Bucket */}
-                              <div className="col-span-2 rounded-lg bg-amber-50/70 border border-amber-300 p-2 text-center">
-                                <div className="flex items-center justify-center gap-1 text-[10px] font-bold text-amber-900 font-mono">
-                                  <HardDrive className="w-3.5 h-3.5 text-amber-700" />
-                                  <span>MinIO S3 Vault</span>
-                                </div>
-                                <div className="text-[8.5px] font-mono text-amber-800 mt-0.5">
-                                  AES-256 Encrypted Scans
+                                <div className="p-1 rounded bg-teal-100/70 border border-teal-300 font-bold flex items-center justify-between">
+                                  <span>Immutable Audit Ledger</span>
+                                  <span>ISO 27001</span>
                                 </div>
                               </div>
                             </div>
@@ -840,46 +1114,65 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({
                     </div>
                   </div>
 
-                  {/* 8-Step Deep-Dive Technical Explanation Cards (Directly addressing judges) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
-                    <div className="p-3 rounded-xl border border-gray-200 bg-white space-y-1">
-                      <div className="flex items-center gap-1.5 font-bold text-[#17171c]">
-                        <span className="w-4 h-4 rounded-full bg-[#ff7759] text-white text-[10px] flex items-center justify-center font-mono">1</span>
-                        <span>Client Ingress (TLS 1.3)</span>
+                  {/* INTERACTIVE COMPONENT INSPECTOR DRAWER (Added per user request) */}
+                  <div className="rounded-2xl border-2 border-[#17171c] bg-[#ffffff] p-4 shadow-sm space-y-3 animate-in fade-in duration-150">
+                    <div className="flex items-start justify-between border-b border-gray-200 pb-2.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-[#003c33] text-white flex items-center justify-center font-bold text-sm shrink-0">
+                          <Cpu className="w-4 h-4 text-[#a3e635]" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-sm text-[#17171c]">
+                              {NODE_SPECS[selectedNode]?.name || "Component Deep-Dive Inspector"}
+                            </h4>
+                            <Badge variant="scheme" className="text-[9.5px] font-mono">
+                              {NODE_SPECS[selectedNode]?.badge}
+                            </Badge>
+                          </div>
+                          <p className="text-[11px] text-gray-500 font-mono mt-0.5">
+                            Subsystem: {NODE_SPECS[selectedNode]?.subsystem} • Protocol: {NODE_SPECS[selectedNode]?.protocol}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-[11px] text-[#616161] leading-relaxed">
-                        Students access via low-bandwidth PWA. Desk officers connect via 50/50 scrutiny console. All requests enforce TLS 1.3 with Perfect Forward Secrecy.
-                      </p>
+                      <span className="text-[10px] font-mono bg-gray-100 px-2 py-0.5 rounded text-gray-600">
+                        Live Architecture Node Inspector
+                      </span>
                     </div>
 
-                    <div className="p-3 rounded-xl border border-gray-200 bg-white space-y-1">
-                      <div className="flex items-center gap-1.5 font-bold text-[#17171c]">
-                        <span className="w-4 h-4 rounded-full bg-[#ff7759] text-white text-[10px] flex items-center justify-center font-mono">2-3</span>
-                        <span>Gateway &amp; Zero Aadhaar</span>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                      {/* Box 1: Core Responsibilities & Algorithms */}
+                      <div className="p-3 rounded-xl border border-gray-200 bg-gray-50/50 space-y-1">
+                        <span className="font-bold text-[10px] uppercase font-mono text-gray-500">
+                          Core Responsibilities &amp; Operations
+                        </span>
+                        <p className="text-[11px] text-gray-700 leading-relaxed">
+                          {NODE_SPECS[selectedNode]?.role}
+                        </p>
                       </div>
-                      <p className="text-[11px] text-[#616161] leading-relaxed">
-                        FastAPI Gateway intercepts payloads. Section 29 Aadhaar Act: computes <code>SHA-256(Aadhaar + Salt)</code> and purges raw digits immediately from volatile RAM.
-                      </p>
-                    </div>
 
-                    <div className="p-3 rounded-xl border border-gray-200 bg-white space-y-1">
-                      <div className="flex items-center gap-1.5 font-bold text-[#17171c]">
-                        <span className="w-4 h-4 rounded-full bg-[#ff7759] text-white text-[10px] flex items-center justify-center font-mono">4-6</span>
-                        <span>Dual-Tier Datastores</span>
+                      {/* Box 2: Security & Aadhaar Act Compliance */}
+                      <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-1">
+                        <span className="font-bold text-[10px] uppercase font-mono text-emerald-800 flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3 text-emerald-600" /> Security &amp; Compliance Standards
+                        </span>
+                        <p className="text-[11px] text-emerald-900 leading-relaxed font-sans">
+                          {NODE_SPECS[selectedNode]?.compliance}
+                        </p>
+                        <div className="text-[10px] font-mono text-emerald-700 pt-1">
+                          Scalability: {NODE_SPECS[selectedNode]?.scalability}
+                        </div>
                       </div>
-                      <p className="text-[11px] text-[#616161] leading-relaxed">
-                        Redis cache provides lightning-fast session verification &amp; rate limit checks. PostgreSQL 16 commits state transitions &amp; immutable audit ledgers.
-                      </p>
-                    </div>
 
-                    <div className="p-3 rounded-xl border border-gray-200 bg-white space-y-1">
-                      <div className="flex items-center gap-1.5 font-bold text-[#17171c]">
-                        <span className="w-4 h-4 rounded-full bg-[#ff7759] text-white text-[10px] flex items-center justify-center font-mono">7-8</span>
-                        <span>Async AI &amp; AES-256 S3</span>
+                      {/* Box 3: 30-Second Judge Elevator Defense */}
+                      <div className="p-3 rounded-xl border border-amber-200 bg-amber-50/40 space-y-1">
+                        <span className="font-bold text-[10px] uppercase font-mono text-amber-900 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-amber-600" /> 30-Sec Judge Defense Soundbite
+                        </span>
+                        <p className="text-[11px] text-amber-950 leading-relaxed font-medium">
+                          &ldquo;{NODE_SPECS[selectedNode]?.judgeDefense}&rdquo;
+                        </p>
                       </div>
-                      <p className="text-[11px] text-[#616161] leading-relaxed">
-                        Celery workers run OpenCV ELA tamper detection (0.04 authentic threshold) and trilingual OCR. Scans stored in private MinIO S3 with AES-256 encryption.
-                      </p>
                     </div>
                   </div>
                 </div>

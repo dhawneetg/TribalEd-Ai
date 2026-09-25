@@ -38,7 +38,9 @@ import {
   HelpCircle,
   Calendar,
   X,
+  Smartphone,
 } from "lucide-react";
+import { SmsSimulatorModal } from "@/components/ui/sms-simulator-modal";
 
 function OpportunitiesInner() {
   // Student Profile State
@@ -75,8 +77,13 @@ function OpportunitiesInner() {
   const [uploadingDocName, setUploadingDocName] = useState<string>("");
   const [isUploadingDoc, setIsUploadingDoc] = useState<boolean>(false);
 
+  // SMS Simulator Modal State
+  const [currentPreset, setCurrentPreset] = useState<"ramesh" | "sunita" | "birsa" | "pooja">("ramesh");
+  const [isSmsSimOpen, setIsSmsSimOpen] = useState<boolean>(false);
+
   // Quick Presets
   const applyPreset = (type: "ramesh" | "sunita" | "birsa" | "pooja") => {
+    setCurrentPreset(type);
     if (type === "ramesh") {
       setProfile({
         name: "Ramesh Chandra Munda",
@@ -323,6 +330,14 @@ function OpportunitiesInner() {
                   className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-medium text-[11px]"
                 >
                   Pooja (Ph.D. Research)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSmsSimOpen(true)}
+                  className="px-3 py-1 rounded-full bg-[#003c33] text-[#edfce9] hover:bg-[#002d26] font-semibold text-[11px] flex items-center gap-1.5 shadow-xs border border-[#a3e635]/40 ml-1"
+                >
+                  <Smartphone className="w-3.5 h-3.5 text-[#ff7759]" />
+                  <span>Test 2G SMS Alert Push</span>
                 </button>
               </div>
             </div>
@@ -672,6 +687,15 @@ function OpportunitiesInner() {
                             <UploadCloud className="w-3.5 h-3.5" />
                             Attach &amp; Unlock Eligibility Now &rarr;
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsSmsSimOpen(true)}
+                            className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1 cursor-pointer ml-1"
+                            title="Simulate 2G SMS Alert dispatched to student's phone"
+                          >
+                            <Smartphone className="w-3 h-3 text-emerald-600" />
+                            Preview 2G SMS Alert
+                          </button>
                         </div>
                       )}
                     </div>
@@ -878,6 +902,13 @@ function OpportunitiesInner() {
           </div>
         </div>
       )}
+
+      {/* RURAL 2G SMS ALERT SIMULATOR MODAL */}
+      <SmsSimulatorModal
+        isOpen={isSmsSimOpen}
+        onClose={() => setIsSmsSimOpen(false)}
+        defaultRecipient={currentPreset}
+      />
     </div>
   );
 }
