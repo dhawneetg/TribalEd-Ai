@@ -41,8 +41,10 @@ import {
   Smartphone,
 } from "lucide-react";
 import { SmsSimulatorModal } from "@/components/ui/sms-simulator-modal";
+import { useLanguage } from "@/lib/language-context";
 
 function OpportunitiesInner() {
+  const { t, language } = useLanguage();
   // Student Profile State
   const [profile, setProfile] = useState<StudentProfile>({
     name: "Ramesh Chandra Munda",
@@ -238,15 +240,13 @@ function OpportunitiesInner() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#eeece7] text-xs font-mono text-[#75758a] mb-3">
               <Sparkles className="w-3.5 h-3.5 text-[#ff7759]" />
-              AI OPPORTUNITY DISCOVERY &amp; NEAR-MISS INTELLIGENCE
+              {t("opps.badge")}
             </div>
             <h1 className="text-3xl sm:text-5xl font-light text-[#17171c] tracking-tight">
-              Proactive Opportunity Matcher &amp; Near-Miss Alerts
+              {t("opps.title")}
             </h1>
             <p className="mt-3 text-sm sm:text-base text-[#616161] leading-relaxed">
-              Register your academic profile once. Sarthi scans central, state, and premier opportunities,
-              executes statutory qualification rules, and delivers <strong>actionable near-miss alerts</strong>{" "}
-              before deadlines close.
+              {t("opps.subtitle")}
             </p>
           </div>
 
@@ -517,7 +517,7 @@ function OpportunitiesInner() {
                 activeTab === "ALL" ? "bg-[#17171c] text-white" : "text-[#616161] hover:bg-[#eeece7]"
               }`}
             >
-              All Opportunities ({allOpps.length})
+              {t("opps.tabAll")} ({allOpps.length})
             </button>
             <button
               onClick={() => setActiveTab("NEAR_MISS")}
@@ -528,7 +528,7 @@ function OpportunitiesInner() {
               }`}
             >
               <AlertTriangle className="w-3 h-3" />
-              Near-Miss Alerts ({matchingData?.summary.near_miss_count || 0})
+              {t("opps.tabNearMiss")} ({matchingData?.summary.near_miss_count || 0})
             </button>
             <button
               onClick={() => setActiveTab("URGENT")}
@@ -539,7 +539,7 @@ function OpportunitiesInner() {
               }`}
             >
               <Clock className="w-3 h-3" />
-              Closing in &lt;48h ({matchingData?.summary.urgent_deadline_count || 0})
+              {t("opps.tabUrgent")} ({matchingData?.summary.urgent_deadline_count || 0})
             </button>
             <button
               onClick={() => setActiveTab("SCHOLARSHIP")}
@@ -547,7 +547,7 @@ function OpportunitiesInner() {
                 activeTab === "SCHOLARSHIP" ? "bg-[#17171c] text-white" : "text-[#616161] hover:bg-[#eeece7]"
               }`}
             >
-              Scholarships 🎓
+              {t("opps.tabScholarships")} 🎓
             </button>
             <button
               onClick={() => setActiveTab("INTERNSHIP")}
@@ -555,7 +555,7 @@ function OpportunitiesInner() {
                 activeTab === "INTERNSHIP" ? "bg-[#17171c] text-white" : "text-[#616161] hover:bg-[#eeece7]"
               }`}
             >
-              Internships 💼
+              {t("opps.tabInternships")} 💼
             </button>
             <button
               onClick={() => setActiveTab("EXAM")}
@@ -563,7 +563,7 @@ function OpportunitiesInner() {
                 activeTab === "EXAM" ? "bg-[#17171c] text-white" : "text-[#616161] hover:bg-[#eeece7]"
               }`}
             >
-              Exams &amp; Coaching 🏛️
+              {t("opps.tabExams")} 🏛️
             </button>
             <button
               onClick={() => setActiveTab("CERTIFICATION")}
@@ -571,7 +571,7 @@ function OpportunitiesInner() {
                 activeTab === "CERTIFICATION" ? "bg-[#17171c] text-white" : "text-[#616161] hover:bg-[#eeece7]"
               }`}
             >
-              Certifications 📜
+              {t("opps.tabCerts")} 📜
             </button>
           </div>
 
